@@ -1,42 +1,10 @@
-import { IoManager } from "./managers/IoManager";
-
-export type AllowedSubmissions = 0 | 1 | 2 | 3;
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Quiz = void 0;
+const IoManager_1 = require("./managers/IoManager");
 const PROBLEM_TIME_S = 20;
-interface User{
-    name: string;
-    id: string;
-    points: number;
-}
-
-interface Submission{
-    problemId: string;
-    userId: string;
-    isCorrect: boolean;
-    optionSelected: AllowedSubmissions
-}
-
-interface Problem{
-    id: string;
-    title: string;
-    description: string;
-    image: string;
-    startTime: number;
-    answer: AllowedSubmissions;
-    options: {
-        id: number;
-        title: string;
-    }[];
-    submissions: Submission[]
-}
-export class Quiz{
-    public roomId: string;
-    private hasStarted: boolean;
-    private problems: Problem[];
-    private activeProblem: number;
-    private users: User[];
-    private currentState: "leaderboard" | "question" | "not_started" | "ended";
-
-    constructor(roomId: string) {
+class Quiz {
+    constructor(roomId) {
         this.roomId = roomId;
         this.hasStarted = false;
         this.problems = [];
@@ -44,79 +12,72 @@ export class Quiz{
         this.users = [];
         this.currentState = "not_started";
     }
-
-    addProblem(problem: Problem){
+    addProblem(problem) {
         this.problems.push(problem);
         console.log(this.problems);
     }
-    start(){
+    start() {
         this.hasStarted = true;
         this.setActiveProblem(this.problems[0]);
         console.log(this.problems);
     }
-
-    setActiveProblem(problem: Problem){
+    setActiveProblem(problem) {
         problem.startTime = new Date().getTime();
         problem.submissions = [];
-        IoManager.getIo().emit("CHANGE_PROBLEM",{
+        IoManager_1.IoManager.getIo().emit("CHANGE_PROBLEM", {
             problem
-        })
+        });
         // clear this if functions moves ahead
         setTimeout(() => {
             this.sendLeaderBoard();
-        }, PROBLEM_TIME_S * 1000)
+        }, PROBLEM_TIME_S * 1000);
     }
-
-    sendLeaderBoard(){
+    sendLeaderBoard() {
         const leaderBoard = this.getLeaderboard();
-        IoManager.getIo().to(this.roomId).emit("leaderboard", {
+        IoManager_1.IoManager.getIo().to(this.roomId).emit("leaderboard", {
             leaderBoard
-        })
+        });
     }
-
-    next(){
-        const io = IoManager.getIo();
+    next() {
+        const io = IoManager_1.IoManager.getIo();
         this.activeProblem++;
-        const problem = this.problems[this.activeProblem]
-        if(problem){
+        const problem = this.problems[this.activeProblem];
+        if (problem) {
             this.setActiveProblem(problem);
-        }else{
+        }
+        else {
             // send final results here
             // io.emit("QUIZ_END",{
             //     problem
             // })
         }
-        
     }
-    genRandonString(length: number) {
+    genRandonString(length) {
         var chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()';
         var charLength = chars.length;
         var result = '';
-        for ( var i = 0; i < length; i++ ) {
-           result += chars.charAt(Math.floor(Math.random() * charLength));
+        for (var i = 0; i < length; i++) {
+            result += chars.charAt(Math.floor(Math.random() * charLength));
         }
         return result;
     }
-
-
-    addUser(name: string){
+    addUser(name) {
         const id = this.genRandonString(7);
         this.users.push({
             id,
             name,
             points: 0
-        })
+        });
         return id;
     }
-
-    submit(userId: string, roomId: string, problemId: string, submission: 0 | 1| 2 | 3){
+    submit(userId, roomId, problemId, submission) {
         const problem = this.problems.find(x => x.id == problemId);
         const user = this.users.find(x => x.id === userId);
-        if(!problem || !user){
+        if (!problem || !user) {
             return;
         }
         const existingSubmission = problem.submissions.find(x => x.userId === userId);
-        if(existingSubmission){
+        if (existingSubmission) {
             return;
         }
         problem.submissions.push({
@@ -125,38 +86,36 @@ export class Quiz{
             isCorrect: problem.answer === submission,
             optionSelected: submission
         });
-
         user.points += 1000 - 500 * (new Date().getTime() - problem.startTime) / PROBLEM_TIME_S;
     }
-
-    getLeaderboard(){
-        return this.users.sort((a, b) => a.points < b.points ? 1 : -1).splice(0,20);
+    getLeaderboard() {
+        return this.users.sort((a, b) => a.points < b.points ? 1 : -1).splice(0, 20);
     }
-
-    getCurrentState(){
-        if(this.currentState === "not_started"){
+    getCurrentState() {
+        if (this.currentState === "not_started") {
             return {
                 type: "not_started"
-            }
+            };
         }
-        if(this.currentState === "ended"){
+        if (this.currentState === "ended") {
             return {
                 type: "ended",
                 leaderboard: this.getLeaderboard()
-            }
+            };
         }
-        if(this.currentState === "leaderboard"){
+        if (this.currentState === "leaderboard") {
             return {
                 type: "leaderboard",
                 leaderboard: this.getLeaderboard()
-            }
+            };
         }
-        if(this.currentState === "question"){
+        if (this.currentState === "question") {
             const problem = this.problems[this.activeProblem];
             return {
                 type: "question",
                 problem
-            }
+            };
         }
     }
 }
+exports.Quiz = Quiz;
