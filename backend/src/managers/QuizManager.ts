@@ -20,7 +20,7 @@ export class QuizManager {
     public addProblem(roomId: string, problem: {
         title: string;
         description: string;
-        image: string;
+        image?: string;
         options: {
             id: number;
             title: string;

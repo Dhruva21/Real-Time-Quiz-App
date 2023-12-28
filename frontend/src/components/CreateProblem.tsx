@@ -1,8 +1,9 @@
 import { useState } from "react"
 
-export const CreateProblem = ({socket}: {socket: any}) => {
+export const CreateProblem = ({socket, roomId}: {socket: any; roomId: string}) => {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
+    const [answer, setAnswer] = useState(0);
     const [options, setOptions] =  useState([
         {
             id: 0,
@@ -23,13 +24,19 @@ export const CreateProblem = ({socket}: {socket: any}) => {
     ])
     return <div>
         Create problem
-        <input type="text" onChange={(e) => {
+        Title = <input type="text" onChange={(e) => {
             setTitle(e.target.value)
         }} />
-        <br />
+        <br /><br />
+        Description = <input type="text" onChange={(e) => {
+            setDescription(e.target.value)
+        }} />
         <br />
         {[0,1,2,3].map(optionId =>
             <div>
+                <input type="radio" checked={optionId === answer} onChange={() => {
+                    setAnswer(optionId)
+                }}/>
                 Option {optionId}
                 <input type="text" onChange={(e) => {
                     setOptions(options => options.map(x => {
@@ -54,7 +61,9 @@ export const CreateProblem = ({socket}: {socket: any}) => {
                 roomId,
                 problem:{
                     title,
-                    options
+                    description,
+                    options,
+                    answer 
                 }
             });
         }}>Add problem</button>

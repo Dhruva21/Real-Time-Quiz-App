@@ -1,14 +1,12 @@
 import http from 'http';
 import { IoManager } from './managers/IoManager';
+import { UserManager } from './managers/UserManager';
 
 const io = IoManager.getIo();
+const userManager = new UserManager();
 
-io.on('connection', (client) => {
-    client.on('event', data => { 
-        const type = data.type;
-        console.log(data);
-    });
-    client.on('disconnect', () => {/* _ */});
+io.on('connection', (socket) => {
+    userManager.addUser(socket);
 })
 
 io.listen(3000);

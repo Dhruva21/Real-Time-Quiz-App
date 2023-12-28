@@ -11,17 +11,29 @@ class Quiz {
         this.activeProblem = 0;
         this.users = [];
         this.currentState = "not_started";
+        console.log("room created");
+        setInterval(() => {
+            this.debug();
+        }, 10000);
+    }
+    debug() {
+        console.log("-----debug-----");
+        console.log(this.roomId);
+        console.log(JSON.stringify(this.problems));
+        console.log(this.users);
+        console.log(this.currentState);
+        console.log(this.activeProblem);
     }
     addProblem(problem) {
         this.problems.push(problem);
-        console.log(this.problems);
     }
     start() {
         this.hasStarted = true;
         this.setActiveProblem(this.problems[0]);
-        console.log(this.problems);
     }
     setActiveProblem(problem) {
+        console.log("set active problem");
+        this.currentState = "question";
         problem.startTime = new Date().getTime();
         problem.submissions = [];
         IoManager_1.IoManager.getIo().emit("CHANGE_PROBLEM", {
@@ -33,13 +45,14 @@ class Quiz {
         }, PROBLEM_TIME_S * 1000);
     }
     sendLeaderBoard() {
+        console.log("send leaderboard");
+        this.currentState = "leaderboard";
         const leaderBoard = this.getLeaderboard();
         IoManager_1.IoManager.getIo().to(this.roomId).emit("leaderboard", {
             leaderBoard
         });
     }
     next() {
-        const io = IoManager_1.IoManager.getIo();
         this.activeProblem++;
         const problem = this.problems[this.activeProblem];
         if (problem) {
