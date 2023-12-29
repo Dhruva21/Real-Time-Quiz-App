@@ -17,7 +17,7 @@ class Quiz {
         }, 10000);
     }
     debug() {
-        console.log("-----debug-----");
+        console.log("----debug---");
         console.log(this.roomId);
         console.log(JSON.stringify(this.problems));
         console.log(this.users);
@@ -26,6 +26,7 @@ class Quiz {
     }
     addProblem(problem) {
         this.problems.push(problem);
+        console.log(this.problems);
     }
     start() {
         this.hasStarted = true;
@@ -36,20 +37,20 @@ class Quiz {
         this.currentState = "question";
         problem.startTime = new Date().getTime();
         problem.submissions = [];
-        IoManager_1.IoManager.getIo().emit("CHANGE_PROBLEM", {
+        IoManager_1.IoManager.getIo().to(this.roomId).emit("problem", {
             problem
         });
-        // clear this if functions moves ahead
+        // Todo: clear this if function moves ahead
         setTimeout(() => {
-            this.sendLeaderBoard();
+            this.sendLeaderboard();
         }, PROBLEM_TIME_S * 1000);
     }
-    sendLeaderBoard() {
+    sendLeaderboard() {
         console.log("send leaderboard");
         this.currentState = "leaderboard";
-        const leaderBoard = this.getLeaderboard();
+        const leaderboard = this.getLeaderboard();
         IoManager_1.IoManager.getIo().to(this.roomId).emit("leaderboard", {
-            leaderBoard
+            leaderboard
         });
     }
     next() {
@@ -59,14 +60,15 @@ class Quiz {
             this.setActiveProblem(problem);
         }
         else {
+            this.activeProblem--;
             // send final results here
-            // io.emit("QUIZ_END",{
+            // IoManager.getIo().emit("QUIZ_END", {
             //     problem
             // })
         }
     }
     genRandonString(length) {
-        var chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()';
+        var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()';
         var charLength = chars.length;
         var result = '';
         for (var i = 0; i < length; i++) {
@@ -84,13 +86,17 @@ class Quiz {
         return id;
     }
     submit(userId, roomId, problemId, submission) {
+        console.log("userId");
+        console.log(userId);
         const problem = this.problems.find(x => x.id == problemId);
         const user = this.users.find(x => x.id === userId);
         if (!problem || !user) {
+            console.log("problem or user not found");
             return;
         }
         const existingSubmission = problem.submissions.find(x => x.userId === userId);
         if (existingSubmission) {
+            console.log("existn submissions");
             return;
         }
         problem.submissions.push({
@@ -99,10 +105,11 @@ class Quiz {
             isCorrect: problem.answer === submission,
             optionSelected: submission
         });
-        user.points += 1000 - 500 * (new Date().getTime() - problem.startTime) / PROBLEM_TIME_S;
+        user.points += (1000 - (500 * (new Date().getTime() - problem.startTime) / (PROBLEM_TIME_S * 1000)));
     }
     getLeaderboard() {
-        return this.users.sort((a, b) => a.points < b.points ? 1 : -1).splice(0, 20);
+        return this.users.sort((a, b) => a.points < b.points ? 1 : -1).slice(0, 20);
+        ;
     }
     getCurrentState() {
         if (this.currentState === "not_started") {

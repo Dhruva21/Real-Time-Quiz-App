@@ -26,7 +26,7 @@ class QuizManager {
         if (!quiz) {
             return;
         }
-        return quiz.next();
+        quiz.next();
     }
     addUser(roomId, name) {
         var _a;

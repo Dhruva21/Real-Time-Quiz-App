@@ -1,4 +1,5 @@
 "use strict";
+// BACK in 3 mins
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserManager = void 0;
 const QuizManager_1 = require("./QuizManager");
@@ -13,16 +14,17 @@ class UserManager {
     createHandlers(socket) {
         socket.on("join", (data) => {
             const userId = this.quizManager.addUser(data.roomId, data.name);
-            socket.emit("userId", {
+            socket.emit("init", {
                 userId,
                 state: this.quizManager.getCurrentState(data.roomId)
             });
+            socket.join(data.roomId);
         });
         socket.on("joinAdmin", (data) => {
             if (data.password !== ADMIN_PASSWORD) {
                 return;
             }
-            console.log("join admin call");
+            console.log("join admi called");
             socket.on("createQuiz", data => {
                 this.quizManager.addQuiz(data.roomId);
             });
@@ -38,10 +40,12 @@ class UserManager {
             const problemId = data.problemId;
             const submission = data.submission;
             const roomId = data.roomId;
-            if (submission != 0 || submission != 1 || submission != 2 || submission != 3) {
+            if (submission != 0 && submission != 1 && submission != 2 && submission != 3) {
                 console.error("issue while getting input " + submission);
                 return;
             }
+            console.log("sub,itting");
+            console.log(roomId);
             this.quizManager.submit(userId, roomId, problemId, submission);
         });
     }

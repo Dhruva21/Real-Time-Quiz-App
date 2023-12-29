@@ -1,20 +1,19 @@
 import { AllowedSubmissions, Quiz } from "../Quiz";
 import { IoManager } from "./IoManager";
-
 let globalProblemId = 0;
 
 export class QuizManager {
-    private quizes: Quiz[]
-    constructor(){
+    private quizes: Quiz[];
+    constructor() {
         this.quizes = [];
     }
 
-    public start(roomId: string){
+    public start(roomId: string) {
         const quiz = this.getQuiz(roomId);
-        if(!quiz){
+        if (!quiz) {
             return;
         }
-        quiz.start()
+        quiz.start();
     }
 
     public addProblem(roomId: string, problem: {
@@ -28,7 +27,7 @@ export class QuizManager {
         answer: AllowedSubmissions;
     }) {
         const quiz = this.getQuiz(roomId);
-        if(!quiz){
+        if(!quiz) {
             return;
         }
         quiz.addProblem({
@@ -36,41 +35,42 @@ export class QuizManager {
             id: (globalProblemId++).toString(),
             startTime: new Date().getTime(),
             submissions: []
-        })
+        });
     }
-
-    public next(roomId: string){
+    
+    public next(roomId: string) {
         const quiz = this.getQuiz(roomId);
-        if(!quiz){
+        if(!quiz) {
             return;
         }
-        return quiz.next();
+        quiz.next();
     }
 
-    addUser(roomId: string, name: string){
+    addUser(roomId: string, name: string) {
         return this.getQuiz(roomId)?.addUser(name);
     }
 
-    submit(userId: string ,roomId: string,problemId: string, submission: 0|1|2|3){
-        this.getQuiz(roomId)?.submit(userId, roomId, problemId, submission);
+    submit(userId: string, roomId: string, problemId: string, submission: 0 | 1 | 2 | 3) {
+        this.getQuiz(roomId)?.submit(userId, roomId, problemId, submission);   
     }
-    getQuiz(roomId: string){
-        return  this.quizes.find(x => x.roomId === roomId) ?? null;
+    
+    getQuiz(roomId: string) {
+        return this.quizes.find(x => x.roomId === roomId) ?? null;
     }
-
-    getCurrentState(roomId: string){
+    
+    getCurrentState(roomId: string) {
         const quiz = this.quizes.find(x => x.roomId === roomId);
-        if(!quiz){
+        if (!quiz) {
             return null;
         }
         return quiz.getCurrentState();
     }
 
-    addQuiz(roomId: string){
-        if(this.getQuiz(roomId)){
+    addQuiz(roomId: string) {
+        if (this.getQuiz(roomId)) {
             return;
         }
         const quiz = new Quiz(roomId);
         this.quizes.push(quiz);
-    }
+    }   
 }
