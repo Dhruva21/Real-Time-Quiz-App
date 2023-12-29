@@ -52,6 +52,16 @@ export const UserLoggedin = ({name}: {name: string}) => {
                 setCurrentQuestion(state.problem)
             }
             setCurrentState(state.type);
+        });
+
+        socket.on("leaderboard", (data) => {
+            setCurrentState("leaderboard");
+            setLeaderboard(data.leaderboard);
+        });
+
+        socket.on("problem" , (data) => {
+            setCurrentState("question");
+            setCurrentQuestion(data.problem);
         })
     }, [])
 
