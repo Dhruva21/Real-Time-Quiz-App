@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Quiz = void 0;
 const IoManager_1 = require("./managers/IoManager");
-const PROBLEM_TIME_S = 20;
+const PROBLEM_TIME_S = 30;
 class Quiz {
     constructor(roomId) {
         this.roomId = roomId;

@@ -9,7 +9,7 @@ export const Admin = () => {
   const [roomId, setRoomId] = useState("");
 
   useEffect(() => {
-    const socket = io("https://quiz-app-pu0u.onrender.com:3000");//io("http://localhost:3000");
+    const socket = io("http://localhost:3000"); //io("https://quiz-app-pu0u.onrender.com:3000");
     setSocket(socket);
     socket.on("connect", () => {
       console.log(socket.id);
