@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/Dhruva21/Real-Time-Quiz-App#readme",
   "dependencies": {
+    "dotenv": "^16.3.1",
     "socket.io": "^4.7.2"
   }
 }
