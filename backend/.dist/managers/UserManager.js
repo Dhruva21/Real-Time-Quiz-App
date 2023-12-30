@@ -24,7 +24,7 @@ class UserManager {
             if (data.password !== ADMIN_PASSWORD) {
                 return;
             }
-            console.log("join admin called");
+            console.log("join admi called");
             socket.on("createQuiz", data => {
                 this.quizManager.addQuiz(data.roomId);
             });
@@ -45,7 +45,7 @@ class UserManager {
                 return;
             }
             console.log("sub,itting");
-            console.log("roomId in submit: ", roomId);
+            console.log(roomId);
             this.quizManager.submit(userId, roomId, problemId, submission);
         });
     }
